@@ -3,6 +3,12 @@
 プロジェクトのドキュメントをこのフォルダに格納します。
 必要になった時点でMarkdownファイルを追加してください。
 
+## プロジェクトの検討記録
+
+[project-inception/README.md](project-inception/README.md)に、企画・実装方針・Issue計画・GitHub運用・セットアップ手順をまとめています。
+
+## 今後追加するドキュメントの例
+
 | ファイル名の例 | 内容 |
 | --- | --- |
 | architecture.md | システム構成・設計方針 |
