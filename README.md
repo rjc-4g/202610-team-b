@@ -27,3 +27,6 @@ Rust + Axum + HTML/JavaScript + Docker Composeで開発するサーバー監視�
 現在はフォルダ構成のみを準備した状態です。Rustプロジェクトの初期化はSetup Issueで行い、実装に合わせて起動方法・API仕様・制約を追記します。
 
 ドキュメントの格納方針は[docs/README.md](docs/README.md)を参照してください。
+
+## Author
+[株式会社ＲＪＣ](https://www.r-jc.jp/) システム開発部第4グループ
