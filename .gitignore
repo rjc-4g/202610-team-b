@@ -1,0 +1,5 @@
+# Rustのビルド生成物
+/target/
+
+# macOS
+.DS_Store
