@@ -14,6 +14,7 @@
 | ドキュメント | 内容 |
 | --- | --- |
 | [Issue #2：Rust開発環境とリポジトリの初期化](issues/issue-2-setup.md) | 初期化の実装経緯、環境の問題と対応、検証結果、レビュー事項 |
+| [Issue #3：Axumによるダミー監視API](issues/issue-3-monitoring-api.md) | API実装、承認済み依存の導入と固定、HTTPテスト、検証結果、レビュー事項 |
 
 ## その他のドキュメント
 
