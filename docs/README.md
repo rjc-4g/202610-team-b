@@ -34,3 +34,7 @@
 | demo.md | デモ手順・学習成果・改善点 |
 
 起動・停止の基本手順はルートの[README.md](../README.md)に記載し、詳細な補足をこのフォルダにまとめます。
+
+## Pull Requestレビュー記録
+
+[reviews/README.md](reviews/README.md)にPRごとのレビュー結果、確認手順、学習記録をまとめます。
