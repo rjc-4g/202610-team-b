@@ -56,7 +56,11 @@ cargo add serde --features derive
 
 開始時点で、前提となるIssue #2の[PR #9](https://github.com/rjc-4g/202610-team-b/pull/9)は未マージでした。Issue #3の差分だけを確認できるよう、PRの比較先は`feature/issue2`とする方針です。PR #9のマージ後、比較先を`main`に変更し、差分とCIを再確認します。
 
-PR作成と担当者によるPRレビューは現時点で未実施です。レビュー完了はIssueの完了条件なので、実装・動作検証のみでIssue全体を完了扱いにしません。
+実装をコミット`62c0f62`にまとめ、`origin/feature/issue3`へpushしました。GitHub連携によるPR作成は403（Resource not accessible by integration）で失敗し、ブラウザーも未ログインでした。ユーザーから「今回はpushまででよい」と指示を受けたため、PR作成はここで保留しました。
+
+PR作成と担当者によるPRレビューは未実施です。レビュー完了はIssueの完了条件なので、実装・動作検証のみでIssue全体を完了扱いにしません。後続作業では[Issue #3の比較画面](https://github.com/rjc-4g/202610-team-b/compare/feature/issue2...feature/issue3?expand=1)からPRを作成できます。PR #9が先にマージされた場合は比較先を`main`にしてください。
+
+この作業で作成した検証コンテナは停止・削除済みです。
 
 レビューではAPIのJSON契約、ダミー値の明示、依存の完全一致固定、READMEの起動・停止手順を確認してください。
 
