@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>サーバー監視ダッシュボード</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <main class="dashboard">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">SERVER MONITOR</p>
+          <h1>サーバー監視ダッシュボード</h1>
+          <p class="description">CPU・メモリの使用率を、ひとつの画面で。</p>
+        </div>
+        <span class="mode-badge">ダミーデータ</span>
+      </header>
+
+      <section class="connection" aria-label="更新状況">
+        <p id="status" class="status" data-state="loading" role="status">接続中…</p>
+        <p>自動更新 <strong>5秒ごと</strong></p>
+        <p>最終更新 <time id="updated">未取得</time></p>
+      </section>
+
+      <!-- 通信失敗時に表示する。直前の値を残す場合も、最新でないことを明示する。 -->
+      <p id="error" class="error" role="alert" hidden></p>
+      <noscript><p class="error">監視値を表示するにはJavaScriptを有効にしてください。</p></noscript>
+
+      <section class="metrics" aria-label="監視指標">
+        <article class="metric-card">
+          <p class="metric-label">PROCESSOR</p>
+          <h2>CPU使用率</h2>
+          <p id="cpu" class="metric-value">—</p>
+          <progress id="cpu-meter" max="100" value="0" aria-label="CPU使用率" aria-valuetext="未取得"></progress>
+          <p class="metric-note">CPUの使用割合</p>
+        </article>
+        <article class="metric-card memory">
+          <p class="metric-label">MEMORY</p>
+          <h2>メモリ使用率</h2>
+          <p id="memory" class="metric-value">—</p>
+          <progress id="memory-meter" max="100" value="0" aria-label="メモリ使用率" aria-valuetext="未取得"></progress>
+          <p class="metric-note">メモリの使用割合</p>
+        </article>
+      </section>
+
+      <footer>
+        <strong>この画面はMVPの動作確認用です。</strong>
+        <p>表示される値は固定のダミー値です。実際のサーバーやホストPCの使用率ではありません。</p>
+      </footer>
+    </main>
+  </body>
+</html>

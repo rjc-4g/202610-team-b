@@ -1,4 +1,6 @@
-use axum::{Json, Router, routing::get};
+mod constants;
+
+use axum::{Json, Router, http::header, response::Html, routing::get};
 use serde::Serialize;
 use tokio::net::TcpListener;
 
@@ -22,8 +24,35 @@ struct Metrics {
 /// この関数の中でhealthを実行するわけではない。
 fn app() -> Router {
     Router::new()
+        .route("/", get(index))
+        .route("/index.html", get(index))
+        .route("/style.css", get(stylesheet))
+        .route("/app.js", get(javascript))
         .route("/api/health", get(health))
         .route("/api/metrics", get(metrics))
+}
+
+/// GET /と/index.htmlへ監視画面を返す。引数はなく、HtmlがHTML用ヘッダーを設定する。
+/// &'static strは埋め込み資産を借用し、リクエストごとの文字列コピーを不要にする。
+async fn index() -> Html<&'static str> {
+    Html(constants::INDEX_HTML)
+}
+
+/// GET /style.cssへCSSを返す。タプルでContent-Typeヘッダーと本文を組み合わせる。
+/// 引数はなく、戻り値の配列には1個のヘッダー（名前と値の組）を格納する。
+async fn stylesheet() -> ([(header::HeaderName, &'static str); 1], &'static str) {
+    (
+        [(header::CONTENT_TYPE, "text/css; charset=utf-8")],
+        constants::STYLE_CSS,
+    )
+}
+
+/// GET /app.jsへJavaScriptを返す。引数はなく、スクリプト用のContent-Typeを明示する。
+async fn javascript() -> ([(header::HeaderName, &'static str); 1], &'static str) {
+    (
+        [(header::CONTENT_TYPE, "text/javascript; charset=utf-8")],
+        constants::APP_JS,
+    )
 }
 
 /// GET /api/healthを受け付け、サーバーが応答できることを示すデータを返す。
@@ -52,8 +81,8 @@ async fn metrics() -> Json<Metrics> {
 async fn main() -> std::io::Result<()> {
     // Dockerのポート公開でもアクセスできるよう、全IPv4インターフェースで待ち受ける。
     // .awaitは非同期処理の完了を待つ。末尾の?は失敗した場合にmainからエラーを返す。
-    let listener = TcpListener::bind("0.0.0.0:8080").await?;
-    println!("Monitoring API listening on http://localhost:8080");
+    let listener = TcpListener::bind(constants::SERVER_ADDRESS).await?;
+    println!("Monitoring dashboard listening on http://localhost:8080");
     // app()のルーティングに従ってリクエストを処理し、サーバーの実行結果を返す。
     axum::serve(listener, app()).await
 }
@@ -147,14 +176,56 @@ mod tests {
         );
     }
 
-    /// 両APIへPOSTすると405 Method Not Allowedになることを検証する。
-    /// 引数・戻り値は不要。forで両方のパスを順に確認し、読み取り用のAPIを守る。
+    /// 画面・静的資産・両APIへPOSTすると405 Method Not Allowedになることを検証する。
+    /// 引数・戻り値は不要。forで公開パスを順に確認し、読み取り専用の配信を守る。
     #[tokio::test]
     async fn post_is_not_allowed_on_read_only_endpoints() {
-        for path in ["/api/health", "/api/metrics"] {
+        for path in [
+            "/api/health",
+            "/api/metrics",
+            "/",
+            "/index.html",
+            "/style.css",
+            "/app.js",
+        ] {
             let response = request("POST", path).await;
             assert!(
                 response.starts_with("HTTP/1.1 405 Method Not Allowed\r\n"),
+                "{response}"
+            );
+        }
+    }
+
+    /// 画面と参照資産が200で配信され、ブラウザで解釈できるContent-Typeを持つことを確認。
+    /// 引数・戻り値は不要。本文の特徴も確認し、誤って別の資産を返す不具合を検出する。
+    #[tokio::test]
+    async fn dashboard_assets_are_served() {
+        for (path, content_type, marker) in [
+            ("/", "text/html; charset=utf-8", "<html lang=\"ja\">"),
+            (
+                "/index.html",
+                "text/html; charset=utf-8",
+                "<script src=\"/app.js\" defer></script>",
+            ),
+            ("/style.css", "text/css; charset=utf-8", ".dashboard"),
+            ("/app.js", "text/javascript; charset=utf-8", "/api/metrics"),
+        ] {
+            let response = request("GET", path).await;
+            let (headers, body) = response.split_once("\r\n\r\n").unwrap();
+            assert!(headers.starts_with("HTTP/1.1 200 OK\r\n"), "{headers}");
+            assert!(headers.lines().any(|line| line.eq_ignore_ascii_case(&format!("content-type: {content_type}"))), "{headers}");
+            assert!(body.contains(marker), "{path}の本文が想定と異なります");
+        }
+    }
+
+    /// 未定義の資産やパストラバーサルでHTMLやプロジェクトファイルを返さないことを確認。
+    /// 明示した公開パス以外は404とし、APIの404も従来どおり維持する。
+    #[tokio::test]
+    async fn unknown_assets_are_not_exposed() {
+        for path in ["/missing.css", "/Cargo.toml", "/../Cargo.toml"] {
+            let response = request("GET", path).await;
+            assert!(
+                response.starts_with("HTTP/1.1 404 Not Found\r\n"),
                 "{response}"
             );
         }

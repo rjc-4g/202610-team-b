@@ -1,0 +1,48 @@
+/* 外部フォントや画像を使わず、狭い画面でも読みやすい監視画面にする。 */
+:root {
+  color-scheme: dark;
+  font-family: "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+  color: #e9eef7;
+  background: #101722;
+  line-height: 1.6;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+p, h1, h2 { margin: 0; }
+[hidden] { display: none !important; }
+.dashboard { max-width: 1080px; margin: 0 auto; padding: 64px 32px; }
+.page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+.eyebrow { color: #76c9f3; font-size: .875rem; letter-spacing: .16em; font-weight: 700; }
+h1 { margin-top: 12px; font-size: clamp(1.5rem, 3vw, 2rem); line-height: 1.4; }
+.description { color: #b4c2d5; margin-top: 12px; }
+.mode-badge { flex-shrink: 0; border: 1px solid #52657d; border-radius: 6px; padding: 6px 12px; font-size: .875rem; color: #d0dbea; }
+.connection { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; margin: 32px 0 24px; padding: 18px 22px; background: #192333; border: 1px solid #344357; border-radius: 10px; color: #b4c2d5; font-size: .875rem; }
+.connection strong, .connection time { color: #e9eef7; margin-left: 8px; }
+.status { display: flex; align-items: center; gap: 9px; font-weight: 600; }
+.status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.status[data-state="connected"] { color: #7de1b8; }
+.status[data-state="error"] { color: #ffb8ad; }
+.error { margin-bottom: 24px; padding: 16px 22px; border: 1px solid #a75852; border-radius: 10px; background: #382326; color: #ffd2ca; }
+.metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.metric-card { --accent: #76c9f3; padding: 30px; border: 1px solid #344357; border-radius: 12px; background: #192333; }
+.memory { --accent: #b5a5ff; }
+.metric-label { color: var(--accent); font-size: .875rem; letter-spacing: .12em; font-weight: 700; }
+h2 { font-size: 1.125rem; margin-top: 8px; font-weight: 500; }
+.metric-value { margin: 24px 0; font-size: clamp(2.75rem, 6vw, 4rem); font-weight: 650; line-height: 1.2; font-variant-numeric: tabular-nums; letter-spacing: -.035em; }
+progress { display: block; appearance: none; width: 100%; height: 10px; border: 0; border-radius: 8px; overflow: hidden; background: #303e52; accent-color: var(--accent); }
+progress::-webkit-progress-bar { background: #303e52; border-radius: 8px; }
+progress::-webkit-progress-value { background: var(--accent); border-radius: 8px; }
+progress::-moz-progress-bar { background: var(--accent); border-radius: 8px; }
+.metric-note { margin-top: 14px; color: #b4c2d5; font-size: .875rem; }
+footer { margin-top: 32px; padding-top: 24px; border-top: 1px solid #344357; color: #b4c2d5; font-size: .875rem; }
+footer strong { color: #d0dbea; font-weight: 500; }
+footer p { margin-top: 6px; }
+
+@media (max-width: 640px) {
+  .dashboard { padding: 32px 20px; }
+  .page-header { flex-direction: column; gap: 16px; }
+  .metrics { grid-template-columns: 1fr; gap: 16px; }
+  .metric-card { padding: 24px; }
+  .connection { flex-direction: column; align-items: flex-start; padding: 18px; }
+}
