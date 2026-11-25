@@ -5,6 +5,7 @@ PRごとに`pr-<PR番号>.md`を作成し、レビューの結果と確認手順
 | PR | 関連Issue | レビュー記録 |
 | --- | --- | --- |
 | [#9：Rust開発環境とGitリポジトリの構築](https://github.com/rjc-4g/202610-team-b/pull/9) | [#2](https://github.com/rjc-4g/202610-team-b/issues/2) | [PR #9のレビューと学習記録](pr-9.md) |
+| [#10：Axumでダミー監視APIを実装](https://github.com/rjc-4g/202610-team-b/pull/10) | [#3](https://github.com/rjc-4g/202610-team-b/issues/3) | [PR #10のレビュー記録](pr-10.md) |
 
 ## 記録する内容
 
