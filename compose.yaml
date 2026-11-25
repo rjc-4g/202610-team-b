@@ -1,0 +1,9 @@
+services:
+  monitor:
+    build:
+      context: .
+      target: runtime
+    ports:
+      # ホストのループバックだけに公開。アプリはコンテナ内の0.0.0.0:8080で待ち受ける。
+      - "127.0.0.1:8080:8080"
+    restart: unless-stopped

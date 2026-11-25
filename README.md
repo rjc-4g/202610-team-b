@@ -3,15 +3,16 @@
 Rust + Axum + HTML/JavaScript + Docker Composeで開発するサーバー監視ダッシュボードです。
 まずはダミー値でCPU・メモリ使用率を表示するMVPを完成させ、コンテナの実測値取得は追加チャレンジとします。
 現在はAxumによるヘルスチェック・ダミー監視APIと、CPU・メモリ使用率を5秒ごとに更新する監視画面を実装しています。
+Docker Composeでビルド・起動できます。Composeで利用する場合、ホストへのRust・Node.jsのインストールは不要です。
 
 ## 開発環境
 
-- Rust / Cargo（[rustup公式サイト](https://rust-lang.org/tools/install/)からrustupを導入し、`rust-toolchain.toml`に記録された固定版を使用）
+- Rust / Cargo（ホストで直接実行・テストする場合。[rustup公式サイト](https://rust-lang.org/tools/install/)からrustupを導入し、`rust-toolchain.toml`に記録された固定版を使用）
 - Git
-- Docker / Docker Compose v2（今後のコンテナ実行で使用）
+- Docker / Docker Compose v2以降（Composeで起動する場合。WindowsではDocker DesktopをLinuxコンテナモードで起動）
 
-RustはEdition 2024を使用します。Windowsの標準構成（MSVC版）では、Rustのインストール時に案内されるVisual Studio C++ Build Toolsも必要です。
-インストール後にターミナルを開き直し、以下を確認してください。
+RustはEdition 2024を使用します。ホストで直接ビルドする場合、Windowsの標準構成（MSVC版）では、Rustのインストール時に案内されるVisual Studio C++ Build Toolsも必要です。
+インストール後にターミナルを開き直し、利用する方式に応じたコマンドを確認してください（Composeだけを利用する場合、`rustc`・`cargo`の確認は不要です）。
 
 ```sh
 rustc --version
@@ -33,6 +34,38 @@ docker info
 git clone https://github.com/rjc-4g/202610-team-b.git
 cd 202610-team-b
 ```
+
+### Docker Composeで起動・停止
+
+Dockerエンジンを起動し、`compose.yaml`があるプロジェクトのルートで実行します。
+
+```sh
+docker compose up --build
+```
+
+初回は固定済みRust環境・依存の取得とリリースビルドに時間がかかります。起動ログが出たら、ブラウザで`http://localhost:8080`を開きます。画面とAPIをホストの`127.0.0.1:8080`だけに公開します。
+
+バックグラウンドで起動する場合は、代わりに以下を実行します。
+
+```sh
+docker compose up --build -d
+docker compose ps
+docker compose logs --tail=50 monitor
+```
+
+停止してComposeのコンテナ・ネットワークを削除するには、同じフォルダで実行します。前面起動中は`Ctrl+C`で停止してから実行できます。ビルドしたイメージは残るため再利用できます。
+
+```sh
+docker compose down
+```
+
+画面・Rustコードを変更した後も`docker compose up --build`で再ビルドしてください。静的ファイルは実行ファイルに埋め込むため、起動中のコンテナには編集が自動反映されません。
+
+8080番が使用中の場合は先に使用中のアプリを停止してください。以前の検証手順で起動した`monitoring-api`が動いている場合は、`docker stop monitoring-api`で停止してからComposeを起動します。Composeの`down`は、その別コンテナを停止しません。
+
+Dockerfileはビルド用と実行用を分けています。実行用にはアプリと同じビルド環境の共有ライブラリだけを含め、root以外のユーザーで動作します。Rust、Cargo、シェルは実行用には含まれません。ビルドには`src/`と`static/`が必要ですが、起動時のソースマウントは不要です。
+
+### Rustをホストで直接実行
 
 ```sh
 cargo run --locked
@@ -92,9 +125,13 @@ node --test tests/dashboard.test.cjs
 ビルド生成物の`target/`は`.gitignore`で除外しています。
 アプリケーションの依存バージョンを共有するため、`Cargo.lock`はGitで管理します。
 
-### Dockerでの動作確認（PowerShell）
+<a id="dockerでの動作確認powershell"></a>
 
-ホスト側にRustをインストールしていない場合は、Dockerエンジンを起動し、クローンしたリポジトリのルートフォルダ（Cargo.tomlがあるフォルダ）に移動して、PowerShellで以下を実行してください。
+### 補足：Rust開発用コンテナでの実行・テスト（PowerShell）
+
+この節はIssue #2・#3から使用している開発・検証用の手順です。上のComposeはビルド済みアプリを起動し、この手順はRust公式コンテナ内でCargoを実行します。通常の画面確認にはComposeを使用できます。
+
+ホスト側にRustをインストールせずCargoで実行・テストする場合は、Dockerエンジンを起動し、プロジェクトのルートフォルダ（Cargo.tomlがあるフォルダ）に移動して、PowerShellで以下を実行してください。Composeと同じ8080番を使うため、同時起動はできません。
 
 ```powershell
 docker run --rm --name monitoring-api --publish 127.0.0.1:8080:8080 --mount "type=bind,source=$($PWD.Path),target=/app,readonly" --workdir /app --env CARGO_TARGET_DIR=/tmp/target rust@sha256:7e9eb23ac694dda816c76933ab63b2703e6becbf3b10da90970124656788d47b cargo run --locked
@@ -126,6 +163,9 @@ Rust公式イメージは`latest`から取得して確認したdigestで固定�
 ├── static/         # HTML・CSS・JavaScript（ビルド時に埋め込み）
 ├── tests/          # JavaScriptの画面処理テスト
 ├── .gitignore
+├── .dockerignore   # Dockerに送るビルド対象の制限
+├── Dockerfile      # Rustビルドと最小実行環境のマルチステージ構成
+├── compose.yaml    # ローカル起動・停止とポート公開
 ├── Cargo.toml      # Rustプロジェクトの定義
 ├── Cargo.lock      # 依存バージョンの固定
 ├── rust-toolchain.toml # Rust / Cargoのバージョン固定

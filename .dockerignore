@@ -1,0 +1,12 @@
+# ビルドに必要なファイルだけをDockerへ送る。
+# .git、target、.env、ローカル設定、ドキュメントなどは既定で除外する。
+**
+!Dockerfile
+!.dockerignore
+!Cargo.toml
+!Cargo.lock
+!rust-toolchain.toml
+!src/
+!src/**
+!static/
+!static/**
