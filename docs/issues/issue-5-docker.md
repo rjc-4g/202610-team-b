@@ -69,6 +69,4 @@ Cargoの検証用イメージは`docker build --target builder --tag server-moni
 
 開発ルールに従い、ローカルコミットまでを実施します。push・PR作成・IssueやProjectの更新は行いません。管理・レビュー担当者の確認は未実施です。
 
-Issue #4は開始時点でmain未取り込みのため、Issue #5の差分だけをレビューする場合は比較先を`feature/issue4`とします。Issue #4のmain取り込み後に比較先と差分を再確認してください。
-
 レビューではREADMEどおりに起動・停止できること、127.0.0.1だけに公開すること、ビルド時にstatic/が含まれること、実行時にホストのRust環境・ソースマウントを必要としないことを確認してください。
